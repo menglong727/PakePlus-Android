@@ -1,31 +1,31 @@
-// 精简版权提示（减少信息暴露，可选保留）
-// console.log('%cbuild from PakePlus', 'color:orangered;font-weight:bolder');
+console.log(
+    '%cbuild from PakePlus： https://github.com/Sjj1024/PakePlus',
+    'color:orangered;font-weight:bolder'
+)
 
-// 拦截 click 事件，防止 _blank 跳转
-document.addEventListener(
-  'click',
-  (e) => {
-    const a = e.target.closest('a');
-    if (!a || !a.href) return;
-
-    // 判断是否应拦截：target="_blank" 或 <base target="_blank">
-    const shouldBlock = a.target === '_blank' || !!document.querySelector('head base[target="_blank"]');
-    if (shouldBlock) {
-      e.preventDefault();
-      location.href = a.href;
+// very important, if you don't know what it is, don't touch it
+// 非常重要，不懂代码不要动，这里可以解决80%的问题，也可以生产1000+的bug
+const hookClick = (e) => {
+    const origin = e.target.closest('a')
+    const isBaseTargetBlank = document.querySelector(
+        'head base[target="_blank"]'
+    )
+    console.log('origin', origin, isBaseTargetBlank)
+    if (
+        (origin && origin.href && origin.target === '_blank') ||
+        (origin && origin.href && isBaseTargetBlank)
+    ) {
+        e.preventDefault()
+        console.log('handle origin', origin)
+        location.href = origin.href
+    } else {
+        console.log('not handle origin', origin)
     }
-  },
-  { capture: true }
-);
+}
 
-// 拦截 window.open
-const _open = window.open;
 window.open = function (url, target, features) {
-  if (url) location.href = url;
-};
-// 防止被覆盖（可选加固）
-Object.defineProperty(window, 'open', {
-  value: window.open,
-  writable: false,
-  configurable: false
-});
+    console.log('open', url, target, features)
+    location.href = url
+}
+
+document.addEventListener('click', hookClick, { capture: true })
